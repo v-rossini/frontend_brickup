@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext } from "react"
 import { useNavigate } from "react-router-dom" 
 
-import { api, createSession } from "../services/api"
+import { api, createSession, createUser } from "../services/api"
 
 export const AuthContext = createContext()
 
@@ -17,11 +17,11 @@ export const AuthProvider = ( { children } ) => {
         console.log(recoveredUser)
         console.log(token)
         
-//        if (recoveredUser && token){
+        if (recoveredUser && token){
             setUser(JSON.parse(recoveredUser))
             api.defaults.headers.Authorization = `Bearer ${token}`
 //            api.defaults.headers.Authorization = `Bearer ${token}`
-//        }
+        }
 
         setLoading(false)
     }, [] )
@@ -43,9 +43,24 @@ export const AuthProvider = ( { children } ) => {
 
 
         setUser(loggedUser)
-        navigate("/")
-        
+        navigate("/")       
     }
+
+    const signUp = async (username, password) => {
+        try {
+            const response = await createUser(username, password)
+            console.log("login", response.data )
+        }
+        catch {
+            alert("não foi possível cadastrar o usuário")
+            return {}
+        }
+
+        login(username, password)
+
+  
+    }
+
 
     const logout = () => {
         console.log("logout")
@@ -57,7 +72,7 @@ export const AuthProvider = ( { children } ) => {
     }
 
     return (
-        <AuthContext.Provider value={ {authenticated: !!user, user, loading, login, logout } }>
+        <AuthContext.Provider value={ {authenticated: !!user, user, loading, login, signUp, logout } }>
             { children }
         </AuthContext.Provider>
     )
